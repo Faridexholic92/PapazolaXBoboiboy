@@ -268,7 +268,7 @@ class MainActivity : Activity() {
                     prefs.edit().putStringSet("favourites", AppOrder.toggle(favourites(), app.packageName)).apply()
                     renderApps()
                 } else launchApp(app)
-            }.setNegativeButton("Batal", null).show()
+            }.setNegativeButton("Batal", null).show().also { focusFirstDialogItem(it) }
     }
 
     private fun launchApp(app: TvApp) = safeStart(Intent(app.intent).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
@@ -298,7 +298,15 @@ class MainActivity : Activity() {
                         .setMessage("Preview 0.1.0 — belum disahkan stabil.\n\nIlustrasi AI berinspirasikan watak, bukan aset atau aplikasi rasmi. Tiada iklan, akaun atau sambungan internet.\n\nTekan Home untuk kembali. Sesetengah TV tidak membenarkan launcher pihak ketiga menjadi Home.")
                         .setPositiveButton("OK", null).show()
                 }
-            }.setNegativeButton("Tutup", null).show()
+            }.setNegativeButton("Tutup", null).show().also { focusFirstDialogItem(it) }
+    }
+
+    private fun focusFirstDialogItem(dialog: AlertDialog) {
+        dialog.listView?.apply {
+            isFocusableInTouchMode = true
+            requestFocus()
+            setSelection(0)
+        }
     }
 
     private fun startAmbient() {

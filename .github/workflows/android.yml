@@ -109,7 +109,7 @@ jobs:
         if: always()
         run: |
           mkdir -p screenshots
-          adb pull /sdcard/Android/data/my.papazola.tv/files/home-preview.png screenshots/ || true
+          adb pull /sdcard/Android/data/my.papazola.tv/files/. screenshots/ || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -128,7 +128,7 @@ jobs:
         run: |
           mkdir -p apk/preview docs/screenshots
           cp preview/* apk/preview/
-          cp screenshots/home-preview.png docs/screenshots/home-preview.png
+          cp screenshots/*.png docs/screenshots/
           printf '\nAPI 28 Android TV emulator smoke checks passed. Physical TV validation pending.\n' >> apk/preview/BUILD.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -141,5 +141,10 @@ jobs:
           { echo "Source: $GITHUB_SHA / run: $GITHUB_RUN_ID"; tail -n 160 smoke.log 2>/dev/null || true; find app/build/outputs/androidTest-results -name '*.xml' -exec tail -n 50 {} \; 2>/dev/null || true; } > docs/ci/latest-smoke.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if compgen -G 'screenshots/*.png' > /dev/null; then
+            mkdir -p docs/screenshots
+            cp screenshots/*.png docs/screenshots/
+            git add docs/screenshots
+          fi
           git add docs/ci/latest-smoke.txt
           git diff --cached --quiet || { git commit -m 'ci: record emulator diagnostics [skip ci]'; git push; }
