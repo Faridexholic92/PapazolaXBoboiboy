@@ -305,6 +305,7 @@ class MainActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(24), dp(8), dp(24), dp(8))
             clipChildren = false
+            clipToPadding = false
         }
         labels.forEachIndexed { index, label ->
             val button = navButton(label) { dialog.dismiss(); onSelected(index) }
