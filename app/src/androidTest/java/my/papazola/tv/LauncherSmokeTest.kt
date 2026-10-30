@@ -68,7 +68,11 @@ class LauncherSmokeTest {
                 scenario.onActivity { a -> assertTrue("Effects resume",descendants(a.window.decorView).filterIsInstance<WeatherEffects>().first().running) }
                 Thread.sleep(800);screenshot("stars-on.png")
                 scenario.onActivity { a -> descendants(a.window.decorView).filterIsInstance<Button>().first { it.text=="Pilihan" }.performClick() }
-                i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);i.waitForIdleSync()
+                i.waitForIdleSync()
+                val toggle=i.uiAutomation.rootInActiveWindow.findAccessibilityNodeInfosByText("Efek: ON").first { it.isClickable }
+                assertTrue("Turn effects off through the visible options UI",toggle.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK))
+                i.waitForIdleSync()
+                scenario.onActivity { a -> assertFalse("Toggle persisted before recreate",a.getSharedPreferences("launcher",0).getBoolean("motion",true)) }
                 scenario.recreate();i.waitForIdleSync()
                 scenario.onActivity { a ->
                     assertEquals("night",a.getSharedPreferences("launcher",0).getString("weather_mode",""))
