@@ -1,34 +1,45 @@
 # Papazola × Boboiboy TV Launcher
 
-Android TV launcher with a cheerful, colourful cartoon-inspired style and animation.
+Colourful, animated Android TV launcher. **0.1.0 technical preview — not a stable release.**
 
-## Confirmed requirements
+## Implemented in source
 
-- Android TV launcher themed around Papazola × Boboiboy.
-- Colourful cartoon visual style with animation and remote-friendly navigation.
-- Commit each project change to this GitHub repository.
-- Store tested stable APKs in the `apk/` directory.
+- Landscape TV home, clock and date, bright elemental colour palette.
+- Installed app discovery (TV apps first), D-pad focus and app launching.
+- Persistent favourites: hold OK or press Menu on an app card.
+- Subtle animated background and focus transitions; motion toggle under **Pilihan**. System animator scale is respected.
+- Device settings shortcut and Home settings shortcut with fallback. Default Home selection depends on device policy; no restrictions are bypassed.
+- No internet permission, ads, account or analytics.
 
-## Status
+Original typography and geometric icon assets only. Official character illustrations are not included. This is a functional starting point, not completed character artwork.
 
-Initial planning and repository setup only. No Android application or APK has been built or tested yet.
+## Build
 
-## Proposed first version
+Requires JDK 17, **Gradle 8.9**, Android SDK 35 and network access to Google/Maven repositories on first build.
 
-- Home screen with clock, date and themed background.
-- Installed TV app grid and favourite app shortcuts.
-- Clear D-pad focus and lightweight animations.
-- Home launcher support where permitted by the device.
-- Reduced-motion option for accessibility and lower-powered devices.
+```sh
+gradle :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+```
 
-Proposed implementation: Kotlin and Jetpack Compose for TV.
-Use original placeholder artwork until appropriately licensed character assets are available.
+This initial scaffold uses the exact Gradle version installed by CI rather than a checked-in wrapper. Kotlin + native Android Views keep the preview dependency-light; Compose for TV remains an option rather than a dependency.
 
-## Next steps
+GitHub Actions builds a **debug-signed preview APK**, checksum and build metadata as an artifact, then runs a separate API 28 Android TV emulator smoke job. A successful build alone does not mean the emulator job or physical-device testing passed. See each job's result.
 
-1. Create the Android project and automated build workflow.
-2. Implement the home screen, app discovery and app launching.
-3. Add favourites, settings and animations.
-4. Run automated checks and emulator smoke tests.
-5. Test on the target Android TV device before claiming compatibility or stability.
-6. Publish a verified stable APK with checksum and release notes in `apk/`.
+## Install and recover safely
+
+1. Download the preview artifact from a successful Actions build and extract it.
+2. With your TV's developer options enabled, use `adb install -r PapazolaXBoboiboy-0.1.0-preview.apk` or your trusted sideload method.
+3. Open **Papazola × Boboiboy TV** from the app list before selecting it as Home.
+4. Try the remote, app launch, favourites and **Tetapan TV**. Keep your original launcher installed.
+5. Only if supported, select this app through **Pilihan → Pilih Home launcher**.
+6. To revert, use **Tetapan TV → Apps → Default apps → Home** (wording varies). If needed, `adb shell am start -a android.settings.SETTINGS` opens device settings. Never disable/uninstall the stock launcher to force this preview.
+
+Some non-TV apps may not work with a remote. Discovery is limited to activities visible to Android's launcher queries. The app excludes itself.
+
+## Delivery requirements
+
+Every project change is committed here. Stable, device-validated APKs will be stored in [`apk/`](apk/README.md). No stable APK is available yet. Debug artifacts use disposable CI debug signing and may require uninstalling an earlier preview before installing a later one; uninstalling clears favourites. A consistent private release key is required before stable distribution.
+
+## Validation
+
+Unit tests cover case-insensitive app ordering and reversible favourites. Instrumentation smoke tests cover startup, initial focus, tabs, Back, motion toggle and screenshot capture. Physical remote navigation, external app launch, system Home handling, older/newer Android versions and performance still require real-device validation.
