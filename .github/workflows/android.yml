@@ -100,10 +100,12 @@ jobs:
           api-level: 28
           target: android-tv
           arch: x86
+          profile: tv_1080p
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -skin 1920x1080
           disable-animations: false
           script: |
-            adb shell wm size 1920x1080
-            adb shell wm density 320
+            adb shell wm size
+            adb shell wm density
             bash ci/run-emulator-tests.sh
       - name: Collect UI screenshot
         if: always()

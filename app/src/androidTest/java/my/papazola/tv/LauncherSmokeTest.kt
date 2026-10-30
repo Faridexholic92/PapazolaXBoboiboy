@@ -25,6 +25,7 @@ class LauncherSmokeTest {
         instrument.waitForIdleSync()
         val bitmap = instrument.uiAutomation.takeScreenshot()
         assertNotNull("Screenshot $name must be available", bitmap)
+        assertTrue("TV framebuffer must be landscape HD, got ${bitmap.width}x${bitmap.height}", bitmap.width >= 1280 && bitmap.width > bitmap.height)
         val destination = File(instrument.targetContext.getExternalFilesDir(null), name)
         destination.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         // AGP can uninstall the target at test completion. Shell-owned Downloads survive cleanup.
