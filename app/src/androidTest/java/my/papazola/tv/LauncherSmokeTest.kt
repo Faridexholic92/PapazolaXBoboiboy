@@ -1,6 +1,7 @@
 package my.papazola.tv
 
 import android.graphics.Bitmap
+import android.os.ParcelFileDescriptor
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +27,10 @@ class LauncherSmokeTest {
         assertNotNull("Screenshot $name must be available", bitmap)
         val destination = File(instrument.targetContext.getExternalFilesDir(null), name)
         destination.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        // AGP can uninstall the target at test completion. Shell-owned Downloads survive cleanup.
+        listOf("mkdir -p /sdcard/Download/papazola", "screencap -p /sdcard/Download/papazola/$name").forEach { command ->
+            ParcelFileDescriptor.AutoCloseInputStream(instrument.uiAutomation.executeShellCommand(command)).use { it.readBytes() }
+        }
     }
 
     @Test fun homeTabsMotionAndRemote() {
