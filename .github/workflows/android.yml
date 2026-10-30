@@ -104,7 +104,7 @@ jobs:
           script: |
             adb shell wm size 1920x1080
             adb shell wm density 320
-            set -o pipefail; gradle --no-daemon :app:connectedDebugAndroidTest 2>&1 | tee smoke.log
+            bash -o pipefail -c 'gradle --no-daemon :app:connectedDebugAndroidTest 2>&1 | tee smoke.log'
       - name: Collect UI screenshot
         if: always()
         run: |
