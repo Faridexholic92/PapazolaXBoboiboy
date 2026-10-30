@@ -35,7 +35,9 @@ class MainActivity : Activity() {
     private lateinit var effects: WeatherEffects
     private lateinit var clock: TextView
     private lateinit var date: TextView
-    private lateinit var prayers: TextView
+    private lateinit var prayers: LinearLayout
+    private val prayerValues = mutableListOf<TextView>()
+    private lateinit var prayerStatus: TextView
     private lateinit var weather: TextView
     private lateinit var dock: LinearLayout
     private var homeFocus: View? = null
@@ -121,8 +123,9 @@ class MainActivity : Activity() {
         val root = Scene(this).apply { setBackgroundColor(navy) }
         wallpaper = ImageView(this).apply { scaleType = ImageView.ScaleType.CENTER_CROP; importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
         root.place(wallpaper,0f,0f,1f,1f)
-        effects = WeatherEffects(this); root.place(effects,0f,0f,1f,1f)
+        effects = WeatherEffects(this)
         root.place(View(this).apply { background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Color.argb(230,3,13,31),Color.argb(150,3,13,31),Color.TRANSPARENT,Color.argb(230,3,13,31))) },0f,0f,1f,1f)
+        root.place(effects,0f,0f,1f,1f)
         root.place(text("FayyadhOS",27f,true),.04f,.035f,.38f,.10f)
         root.place(text("A QUIETER KIND OF SMART.",10f),.042f,.10f,.39f,.13f)
         val controls = LinearLayout(this).apply { gravity = Gravity.END }
@@ -131,8 +134,18 @@ class MainActivity : Activity() {
         root.place(controls,.73f,.045f,.96f,.11f)
         clock = text("--:--",54f); root.place(clock,.04f,.145f,.24f,.265f)
         date = text("",11f,true); root.place(date,.043f,.27f,.29f,.305f)
-        prayers = text("",15f,true).apply { setLineSpacing(dp(5).toFloat(),1f) }
-        root.place(prayers,.29f,.158f,.73f,.30f)
+        prayers = LinearLayout(this).apply { orientation=LinearLayout.VERTICAL }
+        prayers.addView(text("WAKTU SOLAT",11f,true))
+        val prayerRow=LinearLayout(this)
+        listOf("SUBUH","ZOHOR","ASAR","MAGHRIB","ISYAK").forEach { label ->
+            val column=LinearLayout(this).apply { orientation=LinearLayout.VERTICAL;setPadding(0,dp(5),0,dp(4)) }
+            column.addView(text(label,10f,true))
+            val value=text("--:--",17f,true);prayerValues.add(value);column.addView(value)
+            prayerRow.addView(column,LinearLayout.LayoutParams(0,-2,1f))
+        }
+        prayers.addView(prayerRow)
+        prayerStatus=text("KINARUT · JAKIM SBH07",10f);prayers.addView(prayerStatus)
+        root.place(prayers,.29f,.158f,.73f,.31f)
         weather = text("",12f).apply { setLineSpacing(dp(3).toFloat(),1f) }
         root.place(weather,.77f,.15f,.965f,.345f)
         val story = LinearLayout(this).apply { orientation=LinearLayout.VERTICAL }
@@ -245,9 +258,8 @@ class MainActivity : Activity() {
         val day=today();val h=hour()
         val prayer=cache("prayer_cache")?.takeIf { it.optString("day")==day && it.optString("zone")=="SBH07" }
         val fields=listOf("fajr","dhuhr","asr","maghrib","isha")
-        val times=fields.joinToString("    ") { prayer?.optJSONObject("times")?.optString(it)?.take(5) ?: "--:--" }
-        prayers.text="WAKTU SOLAT\nSUBUH   ZOHOR   ASAR   MAGHRIB   ISYAK\n$times\nKINARUT · JAKIM SBH07${if(prayer==null)" · belum tersedia" else if(networkFailed)" · cache hari ini" else ""}"
-        prayers.textSize=12f*scale
+        fields.forEachIndexed { i,key -> prayerValues[i].text=prayer?.optJSONObject("times")?.optString(key)?.take(5) ?: "--:--" }
+        prayerStatus.text="KINARUT · JAKIM SBH07${if(prayer==null)" · belum tersedia" else if(networkFailed)" · cache hari ini" else ""}"
         val cached=cache("weather_cache")
         val row=cached?.optJSONObject("row")?.takeIf { it.optString("date")==day && it.optJSONObject("location")?.optString("location_id")=="Ds548" && System.currentTimeMillis()-(cached.optLong("fetched")) in 0..86400000L }
         val forecast=row?.optString(WeatherRules.period(h))?.takeIf { it.isNotBlank() }
@@ -281,14 +293,14 @@ class MainActivity : Activity() {
                 require(p.getString("status")=="OK!" && p.getString("zone")=="SBH07" && p.getString("serverTime").startsWith(requestedDay) && parsedDay==requestedDay)
                 listOf("fajr","dhuhr","asr","maghrib","isha").forEach { require(Regex("(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]").matches(times.getString(it))) }
                 prefs.edit().putString("prayer_cache",JSONObject().put("day",requestedDay).put("zone","SBH07").put("times",times).toString()).apply()
-            } catch(_:Exception) { failed=true }
+            } catch(e:Exception) { failed=true;android.util.Log.w("WeatherData","JAKIM unavailable: ${e.javaClass.simpleName}: ${e.message}") }
             try {
                 val a=JSONArray(json("https://api.data.gov.my/weather/forecast?filter=Ds548%40location__location_id&date_start=$requestedDay%40date&date_end=$requestedDay%40date&limit=7"))
                 val row=(0 until a.length()).map { a.getJSONObject(it) }.first { it.getString("date")==requestedDay && it.getJSONObject("location").getString("location_id")=="Ds548" }
                 require(row.has("min_temp") && row.has("max_temp") && row.getInt("min_temp")<=row.getInt("max_temp"))
                 listOf("morning_forecast","afternoon_forecast","night_forecast").forEach { require(row.getString(it).isNotBlank()) }
                 prefs.edit().putString("weather_cache",JSONObject().put("row",row).put("fetched",System.currentTimeMillis()).toString()).apply()
-            } catch(_:Exception) { failed=true }
+            } catch(e:Exception) { failed=true;android.util.Log.w("WeatherData","MET forecast unavailable: ${e.javaClass.simpleName}: ${e.message}") }
             handler.post { fetching=false;networkFailed=failed;if(!isDestroyed)updateWidgets() }
         }
     }

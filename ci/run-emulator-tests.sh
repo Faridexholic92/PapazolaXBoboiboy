@@ -9,5 +9,5 @@ if [ "$result" -eq 0 ] && [ ! -f screenshots/home-preview.png ]; then
   echo "Required UI screenshot missing after successful tests" | tee -a smoke.log
   result=1
 fi
-adb logcat -d -s AndroidRuntime > runtime.log || true
+adb logcat -d -s AndroidRuntime WeatherData > runtime.log || true
 exit "$result"

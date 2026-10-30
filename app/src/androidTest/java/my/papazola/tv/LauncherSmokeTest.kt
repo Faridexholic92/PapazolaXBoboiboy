@@ -36,6 +36,14 @@ class LauncherSmokeTest {
                     assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text.contains("KINARUT · JAKIM SBH07") })
                 }
                 screenshot("home-preview.png")
+                // Bounded wait; network unavailability remains a valid, honest UI state.
+                for(attempt in 0 until 26) {
+                    var ready=false
+                    scenario.onActivity { a -> ready=descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text.contains("Dikemas kini") } }
+                    if(ready)break
+                    Thread.sleep(1000)
+                }
+                screenshot("data-status.png")
                 i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_RIGHT);i.waitForIdleSync()
                 scenario.onActivity { a -> assertTrue((a.currentFocus as? Button)?.text?.contains("Kegemaran")==true) }
                 i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);i.waitForIdleSync();screenshot("favourites-empty.png")
@@ -45,10 +53,22 @@ class LauncherSmokeTest {
                 i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);i.waitForIdleSync()
                 scenario.onActivity { a -> assertFalse(a.getSharedPreferences("launcher",0).getBoolean("motion",true)) }
                 screenshot("motion-off.png")
+                scenario.onActivity { a -> descendants(a.window.decorView).filterIsInstance<Button>().first { it.text=="Pilihan" }.performClick() }
+                i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);i.waitForIdleSync()
+                scenario.onActivity { a -> assertTrue(a.getSharedPreferences("launcher",0).getBoolean("motion",false)) }
                 for(mode in listOf("sunny","rain","storm","night")) {
-                    scenario.onActivity { a -> a.setWeatherMode(mode);assertEquals(mode,a.getSharedPreferences("launcher",0).getString("weather_mode","")) }
+                    scenario.onActivity { a -> a.setWeatherMode(mode);assertEquals(mode,a.getSharedPreferences("launcher",0).getString("weather_mode",""));assertTrue(descendants(a.window.decorView).filterIsInstance<WeatherEffects>().first().running) }
                     screenshot("weather-$mode.png")
                 }
+                lateinit var overlay:WeatherEffects
+                scenario.onActivity { a -> overlay=descendants(a.window.decorView).filterIsInstance<WeatherEffects>().first() }
+                scenario.moveToState(androidx.lifecycle.Lifecycle.State.CREATED)
+                i.runOnMainSync { assertFalse("Effects pause offscreen",overlay.running) }
+                scenario.moveToState(androidx.lifecycle.Lifecycle.State.RESUMED)
+                scenario.onActivity { a -> assertTrue("Effects resume",descendants(a.window.decorView).filterIsInstance<WeatherEffects>().first().running) }
+                Thread.sleep(800);screenshot("stars-on.png")
+                scenario.onActivity { a -> descendants(a.window.decorView).filterIsInstance<Button>().first { it.text=="Pilihan" }.performClick() }
+                i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);i.waitForIdleSync()
                 scenario.recreate();i.waitForIdleSync()
                 scenario.onActivity { a ->
                     assertEquals("night",a.getSharedPreferences("launcher",0).getString("weather_mode",""))
