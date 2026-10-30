@@ -25,6 +25,16 @@ class LauncherSmokeTest {
         File(i.targetContext.getExternalFilesDir(null),name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG,100,it) }
         listOf("mkdir -p /sdcard/Download/papazola","screencap -p /sdcard/Download/papazola/$name").forEach { cmd -> ParcelFileDescriptor.AutoCloseInputStream(i.uiAutomation.executeShellCommand(cmd)).use { it.readBytes() } }
     }
+    private fun clickDialogButton(label:String) {
+        val i=InstrumentationRegistry.getInstrumentation()
+        repeat(25) {
+            i.waitForIdleSync()
+            val node=i.uiAutomation.rootInActiveWindow?.findAccessibilityNodeInfosByText(label)?.firstOrNull { it.isClickable && it.isVisibleToUser && it.text?.toString()==label }
+            if(node!=null && node.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)) { i.waitForIdleSync();return }
+            Thread.sleep(100)
+        }
+        fail("Visible dialog button not actionable: $label")
+    }
     @Test fun homeWeatherModesEffectsAndRemote() {
         val i=InstrumentationRegistry.getInstrumentation()
         i.targetContext.getSharedPreferences("launcher",0).edit().clear().commit()
@@ -50,11 +60,11 @@ class LauncherSmokeTest {
                 i.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);i.waitForIdleSync()
                 scenario.onActivity { a -> descendants(a.window.decorView).filterIsInstance<Button>().first { it.text=="Pilihan" }.performClick() }
                 i.waitForIdleSync();screenshot("options-preview.png")
-                i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);i.waitForIdleSync()
+                clickDialogButton("Efek: ON")
                 scenario.onActivity { a -> assertFalse(a.getSharedPreferences("launcher",0).getBoolean("motion",true)) }
                 screenshot("motion-off.png")
                 scenario.onActivity { a -> descendants(a.window.decorView).filterIsInstance<Button>().first { it.text=="Pilihan" }.performClick() }
-                i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);i.waitForIdleSync()
+                clickDialogButton("Efek: OFF")
                 scenario.onActivity { a -> assertTrue(a.getSharedPreferences("launcher",0).getBoolean("motion",false)) }
                 for(mode in listOf("sunny","rain","storm","night")) {
                     scenario.onActivity { a -> a.setWeatherMode(mode);assertEquals(mode,a.getSharedPreferences("launcher",0).getString("weather_mode",""));assertTrue(descendants(a.window.decorView).filterIsInstance<WeatherEffects>().first().running) }
@@ -68,10 +78,7 @@ class LauncherSmokeTest {
                 scenario.onActivity { a -> assertTrue("Effects resume",descendants(a.window.decorView).filterIsInstance<WeatherEffects>().first().running) }
                 Thread.sleep(800);screenshot("stars-on.png")
                 scenario.onActivity { a -> descendants(a.window.decorView).filterIsInstance<Button>().first { it.text=="Pilihan" }.performClick() }
-                i.waitForIdleSync()
-                val toggle=i.uiAutomation.rootInActiveWindow.findAccessibilityNodeInfosByText("Efek: ON").first { it.isClickable }
-                assertTrue("Turn effects off through the visible options UI",toggle.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK))
-                i.waitForIdleSync()
+                clickDialogButton("Efek: ON")
                 scenario.onActivity { a -> assertFalse("Toggle persisted before recreate",a.getSharedPreferences("launcher",0).getBoolean("motion",true)) }
                 scenario.recreate();i.waitForIdleSync()
                 scenario.onActivity { a ->
