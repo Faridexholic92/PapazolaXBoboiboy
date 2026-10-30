@@ -1,0 +1,3 @@
+Source: 93d98011c9bc065e0956558b54672f48a2cc136c / run: 40997676791
+==> sdk-setup.log <==
+/home/runner/work/_temp/0cf330a1-a5f7-4b84-bb6d-c5851684a75f.sh: line 2: sdkmanager: command not found
