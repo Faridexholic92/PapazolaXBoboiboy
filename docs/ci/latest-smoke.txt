@@ -1,9 +1,9 @@
-Source: 1b382a02dfeb009e0522a615f1162e9fd0880c16 / run: 40999325022
+Source: 2bd0bbf65006a8c33da95f70a50529d1670100e9 / run: 41012130023
 ==> smoke.log <==
 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.9/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
 Daemon will be stopped at the end of the build 
 > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
-> Task :app:prepareHero
+> Task :app:prepareWeather
 > Task :app:preBuild
 > Task :app:preDebugBuild
 > Task :app:checkDebugAarMetadata
@@ -17,9 +17,9 @@ Daemon will be stopped at the end of the build
 > Task :app:parseDebugLocalResources
 > Task :app:processDebugMainManifest
 > Task :app:processDebugManifest
+> Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:processDebugManifestForPackage
 > Task :app:javaPreCompileDebug
-> Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:generateDebugAndroidTestResValues
 > Task :app:checkDebugAndroidTestAarMetadata
 > Task :app:mapDebugAndroidTestSourceSetPaths
@@ -51,20 +51,14 @@ Daemon will be stopped at the end of the build
 > Task :app:desugarDebugAndroidTestFileDependencies
 > Task :app:checkDebugAndroidTestDuplicateClasses
 > Task :app:mergeDebugAndroidTestJniLibFolders
-> Task :app:mergeLibDexDebugAndroidTest
+> Task :app:mergeExtDexDebugAndroidTest
 > Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebugAndroidTest
 > Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
 > Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
 > Task :app:validateSigningDebugAndroidTest
 > Task :app:writeDebugAndroidTestSigningConfigVersions
-> Task :app:mergeExtDexDebugAndroidTest
-
 > Task :app:compileDebugKotlin
-w: file:///home/runner/work/PapazolaXBoboiboy/PapazolaXBoboiboy/app/src/main/java/my/papazola/tv/MainActivity.kt:55:26 'var systemUiVisibility: Int' is deprecated. Deprecated in Java.
-w: file:///home/runner/work/PapazolaXBoboiboy/PapazolaXBoboiboy/app/src/main/java/my/papazola/tv/MainActivity.kt:55:52 'static field SYSTEM_UI_FLAG_FULLSCREEN: Int' is deprecated. Deprecated in Java.
-w: file:///home/runner/work/PapazolaXBoboiboy/PapazolaXBoboiboy/app/src/main/java/my/papazola/tv/MainActivity.kt:56:18 'static field SYSTEM_UI_FLAG_HIDE_NAVIGATION: Int' is deprecated. Deprecated in Java.
-w: file:///home/runner/work/PapazolaXBoboiboy/PapazolaXBoboiboy/app/src/main/java/my/papazola/tv/MainActivity.kt:56:57 'static field SYSTEM_UI_FLAG_IMMERSIVE_STICKY: Int' is deprecated. Deprecated in Java.
-
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
 > Task :app:bundleDebugClassesToCompileJar
 > Task :app:dexBuilderDebug
@@ -88,32 +82,81 @@ w: file:///home/runner/work/PapazolaXBoboiboy/PapazolaXBoboiboy/app/src/main/jav
 > Task :app:connectedDebugAndroidTest
 Starting 1 tests on emulator-5554 - 9
 
-Finished 1 tests on emulator-5554 - 9
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__reactivecircus_android-emulator-runner-1793332228738.json
+emulator-5554 - 9 Tests 0/1 completed. (0 skipped) (0 failed)
 
-BUILD SUCCESSFUL in 52s
+> Task :app:connectedDebugAndroidTest
+
+my.papazola.tv.LauncherSmokeTest > homeWeatherModesEffectsAndRemote[emulator-5554 - 9] [31mFAILED [0m
+	java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+
+emulator-5554 - 9 Tests 1/1 completed. (0 skipped) (1 failed)
+Finished 1 tests on emulator-5554 - 9
+
+> Task :app:connectedDebugAndroidTest FAILED
+Tests on emulator-5554 - 9 failed: There was 1 failure(s).
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__reactivecircus_android-emulator-runner-1793340590879.json
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:connectedDebugAndroidTest'.
+> There were failing tests. See the report at: file:///home/runner/work/PapazolaXBoboiboy/PapazolaXBoboiboy/app/build/reports/androidTests/connected/debug/index.html
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 37s
 62 actionable tasks: 62 executed
+/sdcard/Download/papazola/./: 11 files pulled, 0 skipped. 129.8 MB/s (18254141 bytes in 0.134s)
 
 ==> runtime.log <==
 --------- beginning of main
 --------- beginning of system
-10-30 03:50:06.914  1726  1726 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
-10-30 03:50:15.732  2097  2097 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
-10-30 03:50:18.700  2632  2632 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
-10-30 03:50:18.830  2632  2632 D AndroidRuntime: Calling main entry com.android.commands.input.Input
-10-30 03:50:19.938  2632  2632 D AndroidRuntime: Shutting down VM
-10-30 03:51:03.901  3778  3778 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
-10-30 03:51:04.042  3778  3778 D AndroidRuntime: Calling main entry com.android.commands.content.Content
-10-30 03:51:04.059  3778  3778 D AndroidRuntime: Shutting down VM
-10-30 03:51:06.996  3887  3887 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
-10-30 03:51:07.046  3887  3887 D AndroidRuntime: Calling main entry com.android.commands.am.Am
-10-30 03:51:10.392  3887  3887 D AndroidRuntime: Shutting down VM
+10-30 06:09:24.301  1721  1721 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
+--------- beginning of crash
+10-30 06:09:29.303  1931  1931 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
+10-30 06:09:37.439  2210  2210 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+10-30 06:09:40.737  2709  2709 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 06:09:40.792  2709  2709 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 06:09:41.707  2709  2709 D AndroidRuntime: Shutting down VM
+10-30 06:10:35.837  3834  3834 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 06:10:35.883  3834  3834 D AndroidRuntime: Calling main entry com.android.commands.content.Content
+10-30 06:10:35.891  3834  3834 D AndroidRuntime: Shutting down VM
+10-30 06:10:38.442  3943  3943 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 06:10:38.488  3943  3943 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+10-30 06:11:18.488  3943  3943 D AndroidRuntime: Shutting down VM
 <?xml version='1.0' encoding='UTF-8' ?>
-<testsuite name="my.papazola.tv.LauncherSmokeTest" tests="1" failures="0" errors="0" skipped="0" time="4.204" timestamp="2026-10-30T03:51:12" hostname="localhost">
+<testsuite name="my.papazola.tv.LauncherSmokeTest" tests="1" failures="1" errors="0" skipped="0" time="40.637" timestamp="2026-10-30T06:11:20" hostname="localhost">
   <properties>
     <property name="device" value="emulator-5554 - 9" />
     <property name="flavor" value="" />
     <property name="project" value=":app" />
   </properties>
-  <testcase name="homeTabsMotionAndRemote" classname="my.papazola.tv.LauncherSmokeTest" time="2.785" />
+  <testcase name="homeWeatherModesEffectsAndRemote" classname="my.papazola.tv.LauncherSmokeTest" time="39.555">
+    <failure>java.lang.AssertionError
+at org.junit.Assert.fail(Assert.java:87)
+at org.junit.Assert.assertTrue(Assert.java:42)
+at org.junit.Assert.assertFalse(Assert.java:65)
+at org.junit.Assert.assertFalse(Assert.java:75)
+at my.papazola.tv.LauncherSmokeTest.homeWeatherModesEffectsAndRemote$lambda$23$lambda$22(LauncherSmokeTest.kt:75)
+at my.papazola.tv.LauncherSmokeTest.$r8$lambda$wv_S2WliY_3r8dHSwbXyH6nuS6Y(Unknown Source:0)
+at my.papazola.tv.LauncherSmokeTest$$ExternalSyntheticLambda6.perform(D8$$SyntheticClass:0)
+at androidx.test.core.app.ActivityScenario.lambda$onActivity$2$androidx-test-core-app-ActivityScenario(ActivityScenario.java:794)
+at androidx.test.core.app.ActivityScenario$$ExternalSyntheticLambda2.run(D8$$SyntheticClass:0)
+at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:458)
+at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+at android.app.Instrumentation$SyncRunnable.run(Instrumentation.java:2163)
+at android.os.Handler.handleCallback(Handler.java:873)
+at android.os.Handler.dispatchMessage(Handler.java:99)
+at android.os.Looper.loop(Looper.java:193)
+at android.app.ActivityThread.main(ActivityThread.java:6669)
+at java.lang.reflect.Method.invoke(Native Method)
+at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)
+at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:858)
+</failure>
+  </testcase>
 </testsuite>
