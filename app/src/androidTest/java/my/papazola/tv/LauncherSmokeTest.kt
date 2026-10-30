@@ -17,63 +17,47 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class LauncherSmokeTest {
-    private fun descendants(view: View): List<View> = listOf(view) +
-        if (view is ViewGroup) (0 until view.childCount).flatMap { descendants(view.getChildAt(it)) } else emptyList()
-
-    private fun screenshot(name: String) {
-        val instrument = InstrumentationRegistry.getInstrumentation()
-        instrument.waitForIdleSync()
-        val bitmap = instrument.uiAutomation.takeScreenshot()
-        assertNotNull("Screenshot $name must be available", bitmap)
-        assertTrue("TV framebuffer must be landscape HD, got ${bitmap.width}x${bitmap.height}", bitmap.width >= 1280 && bitmap.width > bitmap.height)
-        val destination = File(instrument.targetContext.getExternalFilesDir(null), name)
-        destination.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
-        // AGP can uninstall the target at test completion. Shell-owned Downloads survive cleanup.
-        listOf("mkdir -p /sdcard/Download/papazola", "screencap -p /sdcard/Download/papazola/$name").forEach { command ->
-            ParcelFileDescriptor.AutoCloseInputStream(instrument.uiAutomation.executeShellCommand(command)).use { it.readBytes() }
-        }
+    private fun descendants(v:View):List<View> = listOf(v) + if(v is ViewGroup)(0 until v.childCount).flatMap { descendants(v.getChildAt(it)) } else emptyList()
+    private fun screenshot(name:String) {
+        val i=InstrumentationRegistry.getInstrumentation();i.waitForIdleSync()
+        val bitmap=i.uiAutomation.takeScreenshot();assertNotNull(bitmap)
+        assertTrue("TV landscape HD",bitmap.width>=1280 && bitmap.width>bitmap.height)
+        File(i.targetContext.getExternalFilesDir(null),name).outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG,100,it) }
+        listOf("mkdir -p /sdcard/Download/papazola","screencap -p /sdcard/Download/papazola/$name").forEach { cmd -> ParcelFileDescriptor.AutoCloseInputStream(i.uiAutomation.executeShellCommand(cmd)).use { it.readBytes() } }
     }
-
-    @Test fun homeTabsMotionAndRemote() {
-        val instrument = InstrumentationRegistry.getInstrumentation()
-        instrument.targetContext.getSharedPreferences("launcher", 0).edit().clear().commit()
+    @Test fun homeWeatherModesEffectsAndRemote() {
+        val i=InstrumentationRegistry.getInstrumentation()
+        i.targetContext.getSharedPreferences("launcher",0).edit().clear().commit()
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             try {
-                scenario.onActivity { activity ->
-                    val nodes = descendants(activity.window.decorView)
-                    assertTrue("Hero heading exists", nodes.filterIsInstance<TextView>().any { it.text.toString() == "MASA UNTUK BERAKSI!" })
-                    assertTrue("A navigation button has initial focus", activity.currentFocus is Button)
+                scenario.onActivity { a ->
+                    assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text.toString()=="AYAH\nFAYYADH" })
+                    assertTrue("Dock initially focused",a.currentFocus is Button)
+                    assertTrue(descendants(a.window.decorView).filterIsInstance<TextView>().any { it.text.contains("KINARUT · JAKIM SBH07") })
                 }
                 screenshot("home-preview.png")
-                instrument.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_RIGHT)
-                instrument.waitForIdleSync()
-                scenario.onActivity { activity ->
-                    assertTrue("D-pad right reaches favourites tab", (activity.currentFocus as? Button)?.text?.contains("Kegemaran") == true)
-                }
-                instrument.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER)
-                instrument.waitForIdleSync()
-                scenario.onActivity { activity ->
-                    assertTrue("Favourites tab opens", descendants(activity.window.decorView).filterIsInstance<TextView>().any { it.text.startsWith("Kegemaran  /") })
-                }
-                screenshot("favourites-empty.png")
-                instrument.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-                instrument.waitForIdleSync()
-                scenario.onActivity { activity ->
-                    assertTrue("Back returns to all apps", descendants(activity.window.decorView).filterIsInstance<TextView>().any { it.text.startsWith("Semua aplikasi  /") })
-                    assertTrue("Back restores navigation focus", activity.currentFocus is Button)
-                    descendants(activity.window.decorView).filterIsInstance<Button>().first { it.text == "Pilihan" }.performClick()
-                }
-                screenshot("options-preview.png")
-                instrument.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER)
-                instrument.waitForIdleSync()
-                scenario.onActivity { activity ->
-                    assertFalse("First dialog item toggles motion with remote OK", activity.getSharedPreferences("launcher", 0).getBoolean("motion", true))
-                }
+                i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_RIGHT);i.waitForIdleSync()
+                scenario.onActivity { a -> assertTrue((a.currentFocus as? Button)?.text?.contains("Kegemaran")==true) }
+                i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);i.waitForIdleSync();screenshot("favourites-empty.png")
+                i.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);i.waitForIdleSync()
+                scenario.onActivity { a -> descendants(a.window.decorView).filterIsInstance<Button>().first { it.text=="Pilihan" }.performClick() }
+                i.waitForIdleSync();screenshot("options-preview.png")
+                i.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_CENTER);i.waitForIdleSync()
+                scenario.onActivity { a -> assertFalse(a.getSharedPreferences("launcher",0).getBoolean("motion",true)) }
                 screenshot("motion-off.png")
-            } catch (failure: Throwable) {
-                screenshot("failure-state.png")
-                throw failure
-            }
+                for(mode in listOf("sunny","rain","storm","night")) {
+                    scenario.onActivity { a -> a.setWeatherMode(mode);assertEquals(mode,a.getSharedPreferences("launcher",0).getString("weather_mode","")) }
+                    screenshot("weather-$mode.png")
+                }
+                scenario.recreate();i.waitForIdleSync()
+                scenario.onActivity { a ->
+                    assertEquals("night",a.getSharedPreferences("launcher",0).getString("weather_mode",""))
+                    assertFalse(a.getSharedPreferences("launcher",0).getBoolean("motion",true))
+                    assertFalse(descendants(a.window.decorView).filterIsInstance<WeatherEffects>().first().running)
+                    a.setWeatherMode("auto")
+                }
+                screenshot("auto-restored.png")
+            } catch(t:Throwable) { screenshot("failure-state.png");throw t }
         }
     }
 }

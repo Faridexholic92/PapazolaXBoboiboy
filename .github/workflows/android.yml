@@ -1,7 +1,7 @@
 name: Android preview
 on:
   push:
-    branches: [main]
+    branches: [main, feature/weather-wallpaper-v02]
     paths-ignore: ['apk/**', '**.md', 'docs/screenshots/**', 'docs/ci/**']
   pull_request:
   workflow_dispatch:
@@ -48,7 +48,7 @@ jobs:
       - name: Prepare preview metadata
         run: |
           mkdir -p preview
-          cp app/build/outputs/apk/debug/app-debug.apk preview/PapazolaXBoboiboy-0.1.0-preview.apk
+          cp app/build/outputs/apk/debug/app-debug.apk preview/DuniaAyahFayyadh-0.2.0-weather-preview.apk
           cd preview
           sha256sum *.apk > SHA256SUMS.txt
           printf 'Source: %s\nBuild: %s\nDebug-signed PREVIEW. Not stable. No physical-device validation yet.\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > BUILD.txt

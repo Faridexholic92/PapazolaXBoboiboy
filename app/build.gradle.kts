@@ -8,8 +8,8 @@ android {
         applicationId = "my.papazola.tv"
         minSdk = 23
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0-preview"
+        versionCode = 2
+        versionName = "0.2.0-weather-preview"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes { release { isMinifyEnabled = false } }
@@ -24,16 +24,19 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }
 
-// Text-encoded asset permits MCP-only repository edits; decode before resource processing.
-val generatedHero = layout.buildDirectory.dir("generated/res/hero")
-val prepareHero by tasks.registering {
-    inputs.file("src/main/artwork/hero.jpg.base64")
-    outputs.dir(generatedHero)
+// Versioned text assets are decoded into native Android drawable resources.
+val generatedWeather = layout.buildDirectory.dir("generated/res/weather")
+val prepareWeather by tasks.registering {
+    inputs.files(fileTree("src/main/artwork") { include("*.jpg.base64") })
+    outputs.dir(generatedWeather)
     doLast {
-        val out = generatedHero.get().file("drawable-nodpi/hero_art.jpg").asFile
-        out.parentFile.mkdirs()
-        out.writeBytes(Base64.getMimeDecoder().decode(file("src/main/artwork/hero.jpg.base64").readText()))
+        fileTree("src/main/artwork").matching { include("*.jpg.base64") }.forEach { source ->
+            val name = source.name.removeSuffix(".jpg.base64")
+            val out = generatedWeather.get().file("drawable-nodpi/weather_${name}.jpg").asFile
+            out.parentFile.mkdirs()
+            out.writeBytes(Base64.getMimeDecoder().decode(source.readText()))
+        }
     }
 }
-android.sourceSets.getByName("main").res.srcDir(generatedHero)
-tasks.named("preBuild").configure { dependsOn(prepareHero) }
+android.sourceSets.getByName("main").res.srcDir(generatedWeather)
+tasks.named("preBuild").configure { dependsOn(prepareWeather) }
