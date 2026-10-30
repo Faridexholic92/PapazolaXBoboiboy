@@ -1,12 +1,12 @@
-Source: bb0b00291450aabd7996152438a5216ecc8ab12e / run: 40998315287
+Source: a189ead7cd915fc2107134bedfa6efe63198f865 / run: 40998897487
 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.9/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
 Daemon will be stopped at the end of the build 
 > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :app:prepareHero
 > Task :app:preBuild
 > Task :app:preDebugBuild
-> Task :app:generateDebugResValues
 > Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
@@ -19,26 +19,44 @@ Daemon will be stopped at the end of the build
 > Task :app:preDebugAndroidTestBuild SKIPPED
 > Task :app:javaPreCompileDebug
 > Task :app:generateDebugAndroidTestResValues
+> Task :app:processDebugManifestForPackage
 > Task :app:checkDebugAndroidTestAarMetadata
 > Task :app:mapDebugAndroidTestSourceSetPaths
 > Task :app:generateDebugAndroidTestResources
 > Task :app:mergeDebugAndroidTestResources
 > Task :app:processDebugAndroidTestManifest
-> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:processDebugAndroidTestResources
 > Task :app:javaPreCompileDebugAndroidTest
 > Task :app:mergeDebugShaders
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
 > Task :app:mergeDebugAssets
 > Task :app:compressDebugAssets
-> Task :app:processDebugAndroidTestResources
-> Task :app:processDebugResources
 > Task :app:desugarDebugFileDependencies
 > Task :app:mergeDebugJniLibFolders
+> Task :app:checkDebugDuplicateClasses
 > Task :app:mergeDebugNativeLibs NO-SOURCE
 > Task :app:stripDebugDebugSymbols NO-SOURCE
-> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeLibDexDebug
 > Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:mergeDebugAndroidTestShaders
+> Task :app:compileDebugAndroidTestShaders NO-SOURCE
+> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeDebugAndroidTestAssets
+> Task :app:compressDebugAndroidTestAssets
+> Task :app:desugarDebugAndroidTestFileDependencies
+> Task :app:checkDebugAndroidTestDuplicateClasses
+> Task :app:mergeDebugAndroidTestJniLibFolders
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebugAndroidTest
+> Task :app:mergeExtDexDebugAndroidTest
+> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebugAndroidTest
+> Task :app:writeDebugAndroidTestSigningConfigVersions
 
 > Task :app:compileDebugKotlin
 w: file:///home/runner/work/PapazolaXBoboiboy/PapazolaXBoboiboy/app/src/main/java/my/papazola/tv/MainActivity.kt:55:26 'var systemUiVisibility: Int' is deprecated. Deprecated in Java.
@@ -49,37 +67,19 @@ w: file:///home/runner/work/PapazolaXBoboiboy/PapazolaXBoboiboy/app/src/main/jav
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
 > Task :app:bundleDebugClassesToCompileJar
 > Task :app:dexBuilderDebug
-> Task :app:mergeExtDexDebug
 > Task :app:mergeDebugGlobalSynthetics
 > Task :app:processDebugJavaRes
-> Task :app:mergeLibDexDebug
-> Task :app:writeDebugAppMetadata
 > Task :app:mergeProjectDexDebug
-> Task :app:writeDebugSigningConfigVersions
-> Task :app:mergeDebugAndroidTestShaders
-> Task :app:compileDebugAndroidTestShaders NO-SOURCE
-> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
-> Task :app:mergeDebugAndroidTestAssets
-> Task :app:compressDebugAndroidTestAssets
 > Task :app:mergeDebugJavaResource
-> Task :app:desugarDebugAndroidTestFileDependencies
-> Task :app:checkDebugAndroidTestDuplicateClasses
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
 > Task :app:compileDebugAndroidTestKotlin
 > Task :app:compileDebugAndroidTestJavaWithJavac NO-SOURCE
 > Task :app:dexBuilderDebugAndroidTest
 > Task :app:mergeDebugAndroidTestGlobalSynthetics
 > Task :app:processDebugAndroidTestJavaRes
-> Task :app:packageDebug
-> Task :app:createDebugApkListingFileRedirect
-> Task :app:mergeLibDexDebugAndroidTest
-> Task :app:mergeDebugAndroidTestJniLibFolders
 > Task :app:mergeProjectDexDebugAndroidTest
-> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
-> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
-> Task :app:validateSigningDebugAndroidTest
-> Task :app:writeDebugAndroidTestSigningConfigVersions
 > Task :app:mergeDebugAndroidTestJavaResource
-> Task :app:mergeExtDexDebugAndroidTest
 > Task :app:packageDebugAndroidTest
 > Task :app:createDebugAndroidTestApkListingFileRedirect
 [EmulatorConsole]: Failed to start Emulator console for 5554
@@ -88,14 +88,14 @@ w: file:///home/runner/work/PapazolaXBoboiboy/PapazolaXBoboiboy/app/src/main/jav
 Starting 1 tests on emulator-5554 - 9
 
 my.papazola.tv.LauncherSmokeTest > homeTabsMotionAndRemote[emulator-5554 - 9] [31mFAILED [0m
-	java.lang.AssertionError
-	at org.junit.Assert.fail(Assert.java:87)
+	java.lang.AssertionError: First dialog item toggles motion with remote OK
+	at org.junit.Assert.fail(Assert.java:89)
 Tests on emulator-5554 - 9 failed: There was 1 failure(s).
 
 Finished 1 tests on emulator-5554 - 9
 
 > Task :app:connectedDebugAndroidTest FAILED
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__reactivecircus_android-emulator-runner-1793331586140.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__reactivecircus_android-emulator-runner-1793331926901.json
 
 FAILURE: Build failed with an exception.
 
@@ -109,24 +109,23 @@ Execution failed for task ':app:connectedDebugAndroidTest'.
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 1m 50s
+BUILD FAILED in 51s
 62 actionable tasks: 62 executed
 <?xml version='1.0' encoding='UTF-8' ?>
-<testsuite name="my.papazola.tv.LauncherSmokeTest" tests="1" failures="1" errors="0" skipped="0" time="2.576" timestamp="2026-10-30T03:41:27" hostname="localhost">
+<testsuite name="my.papazola.tv.LauncherSmokeTest" tests="1" failures="1" errors="0" skipped="0" time="3.551" timestamp="2026-10-30T03:46:08" hostname="localhost">
   <properties>
     <property name="device" value="emulator-5554 - 9" />
     <property name="flavor" value="" />
     <property name="project" value=":app" />
   </properties>
-  <testcase name="homeTabsMotionAndRemote" classname="my.papazola.tv.LauncherSmokeTest" time="1.644">
-    <failure>java.lang.AssertionError
-at org.junit.Assert.fail(Assert.java:87)
+  <testcase name="homeTabsMotionAndRemote" classname="my.papazola.tv.LauncherSmokeTest" time="2.538">
+    <failure>java.lang.AssertionError: First dialog item toggles motion with remote OK
+at org.junit.Assert.fail(Assert.java:89)
 at org.junit.Assert.assertTrue(Assert.java:42)
 at org.junit.Assert.assertFalse(Assert.java:65)
-at org.junit.Assert.assertFalse(Assert.java:75)
-at my.papazola.tv.LauncherSmokeTest.homeTabsMotionAndRemote$lambda$10$lambda$8(LauncherSmokeTest.kt:43)
-at my.papazola.tv.LauncherSmokeTest.$r8$lambda$8fmrpdX3Np2H1FoqqgW8zPk7Wqs(Unknown Source:0)
-at my.papazola.tv.LauncherSmokeTest$$ExternalSyntheticLambda2.perform(D8$$SyntheticClass:0)
+at my.papazola.tv.LauncherSmokeTest.homeTabsMotionAndRemote$lambda$11$lambda$10(LauncherSmokeTest.kt:64)
+at my.papazola.tv.LauncherSmokeTest.$r8$lambda$VC3Z4okY_bF9hDY2lBtNSgrCp_w(Unknown Source:0)
+at my.papazola.tv.LauncherSmokeTest$$ExternalSyntheticLambda4.perform(D8$$SyntheticClass:0)
 at androidx.test.core.app.ActivityScenario.lambda$onActivity$2$androidx-test-core-app-ActivityScenario(ActivityScenario.java:794)
 at androidx.test.core.app.ActivityScenario$$ExternalSyntheticLambda2.run(D8$$SyntheticClass:0)
 at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:458)
