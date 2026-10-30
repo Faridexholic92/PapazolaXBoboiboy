@@ -1,3 +1,5 @@
+import java.util.Base64
+
 plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
 android {
     namespace = "my.papazola.tv"
@@ -21,3 +23,17 @@ dependencies {
     androidTestImplementation("androidx.test:core:1.6.1")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }
+
+// Text-encoded asset permits MCP-only repository edits; decode before resource processing.
+val generatedHero = layout.buildDirectory.dir("generated/res/hero")
+val prepareHero by tasks.registering {
+    inputs.file("src/main/artwork/hero.jpg.base64")
+    outputs.dir(generatedHero)
+    doLast {
+        val out = generatedHero.get().file("drawable-nodpi/hero_art.jpg").asFile
+        out.parentFile.mkdirs()
+        out.writeBytes(Base64.getMimeDecoder().decode(file("src/main/artwork/hero.jpg.base64").readText()))
+    }
+}
+android.sourceSets.getByName("main").res.srcDir(generatedHero)
+tasks.named("preBuild").configure { dependsOn(prepareHero) }

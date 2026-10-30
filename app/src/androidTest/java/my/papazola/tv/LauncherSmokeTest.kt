@@ -21,6 +21,7 @@ class LauncherSmokeTest {
 
     @Test fun homeTabsMotionAndRemote() {
         val instrument = InstrumentationRegistry.getInstrumentation()
+        instrument.targetContext.getSharedPreferences("launcher", 0).edit().clear().commit()
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 val nodes = descendants(activity.window.decorView)

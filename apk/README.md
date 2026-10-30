@@ -2,7 +2,7 @@
 
 **No stable APK is available yet.** This folder is reserved for verified stable builds.
 
-Early **debug-signed preview APKs** are downloadable from the repository's GitHub Actions build artifacts (sign-in required). These are not stable builds and are not stored here.
+After build and emulator smoke checks pass, an early **debug-signed preview APK** is published under `apk/preview/`, together with its checksum and source commit. Actions artifacts are also available (sign-in required). These previews are not stable releases. Stable releases will later be stored separately in this folder after physical-device validation.
 
 Before publishing a stable APK:
 

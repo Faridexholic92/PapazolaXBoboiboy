@@ -22,4 +22,4 @@
 
 ## Known preview limits
 
-No official character artwork. No rearranging tiles, custom wallpaper, search or app hiding yet. Back returns to the all-apps tab rather than exiting Home. CI debug signatures are not a stable update channel. API 23 is the declared minimum, not a guarantee of tested compatibility. OEM Home restrictions are respected.
+AI-generated, unofficial fan-themed artwork; not official character assets. No rearranging tiles, custom wallpaper, search or app hiding yet. Back returns to the all-apps tab rather than exiting Home. CI debug signatures are not a stable update channel. API 23 is the declared minimum, not a guarantee of tested compatibility. OEM Home restrictions are respected.

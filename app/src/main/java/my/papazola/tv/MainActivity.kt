@@ -119,10 +119,10 @@ class MainActivity : Activity() {
 
         val hero = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            background = shape(Color.rgb(255, 211, 78))
+            background = resources.getDrawable(R.drawable.hero_art, theme)
             setPadding(dp(24), dp(16), dp(24), dp(16))
         }
-        hero.addView(text("MASA UNTUK BERAKSI!", 28f, ink, true))
+        hero.addView(text("MASA UNTUK BERAKSI!", 26f, ink, true))
         hero.addView(text("Dunia hiburan kau, satu remote sahaja.", 17f, ink))
         hero.addView(text("PETIR  /  API  /  ANGIN  /  DAUN", 12f, ink, true).apply { setPadding(0, dp(10), 0, 0) })
         body.addView(hero, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(22); bottomMargin = dp(16) })
@@ -143,7 +143,7 @@ class MainActivity : Activity() {
         body.addView(text("OK: buka  •  Tahan OK / Menu: kegemaran  •  Back: semua app", 13f).apply {
             setPadding(0, dp(12), 0, 0)
         })
-        body.addView(text("PREVIEW 0.1  •  Tema tipografi asal; ilustrasi watak belum disertakan", 11f).apply {
+        body.addView(text("PREVIEW 0.1  •  Ilustrasi AI tidak rasmi • Bukan aplikasi rasmi", 11f).apply {
             setPadding(0, dp(6), 0, 0)
         })
         scroll.addView(body)
@@ -215,6 +215,7 @@ class MainActivity : Activity() {
         var restored = false
         visible.chunked(columns).forEachIndexed { rowIndex, chunk ->
             val row = LinearLayout(this).apply { clipChildren = false; clipToPadding = false }
+            grid.addView(row)
             chunk.forEachIndexed { index, app ->
                 val card = LinearLayout(this).apply {
                     orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER
@@ -255,7 +256,6 @@ class MainActivity : Activity() {
                 if (app.packageName == focusedPackage) { card.requestFocus(); restored = true }
             }
             repeat(columns - chunk.size) { row.addView(Space(this), LinearLayout.LayoutParams(0, 1, 1f).apply { marginEnd = dp(10) }) }
-            grid.addView(row)
         }
         if (focusedPackage != null && !restored) allTab.requestFocus()
     }
@@ -295,7 +295,7 @@ class MainActivity : Activity() {
                         else { openSettings(); Toast.makeText(this, "Pilih Default apps > Home jika peranti menyokongnya.", Toast.LENGTH_LONG).show() }
                     }
                     2 -> AlertDialog.Builder(this).setTitle("Papazola × Boboiboy TV")
-                        .setMessage("Preview 0.1.0 — belum disahkan stabil.\n\nTema warna dan tipografi asal; tiada ilustrasi watak rasmi. Tiada iklan, akaun atau sambungan internet.\n\nTekan Home untuk kembali. Sesetengah TV tidak membenarkan launcher pihak ketiga menjadi Home.")
+                        .setMessage("Preview 0.1.0 — belum disahkan stabil.\n\nIlustrasi AI berinspirasikan watak, bukan aset atau aplikasi rasmi. Tiada iklan, akaun atau sambungan internet.\n\nTekan Home untuk kembali. Sesetengah TV tidak membenarkan launcher pihak ketiga menjadi Home.")
                         .setPositiveButton("OK", null).show()
                 }
             }.setNegativeButton("Tutup", null).show()

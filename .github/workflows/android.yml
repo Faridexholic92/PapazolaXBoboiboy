@@ -2,7 +2,7 @@ name: Android preview
 on:
   push:
     branches: [main]
-    paths-ignore: ['apk/**', '**.md']
+    paths-ignore: ['apk/**', '**.md', 'docs/screenshots/**', 'docs/ci/**']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -12,26 +12,33 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
+      - name: Install SDK packages from runner SDK
+        run: |
+          set -o pipefail
+          sdkmanager 'platforms;android-35' 'build-tools;34.0.0' 2>&1 | tee sdk-setup.log
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
       - name: Build, unit tests and lint
-        run: gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:assembleDebugAndroidTest
+        run: |
+          set -o pipefail
+          gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug :app:assembleDebugAndroidTest 2>&1 | tee build.log
       - name: Prepare preview metadata
         run: |
           mkdir -p preview
           cp app/build/outputs/apk/debug/app-debug.apk preview/PapazolaXBoboiboy-0.1.0-preview.apk
           cd preview
           sha256sum *.apk > SHA256SUMS.txt
-          printf 'Source: %s\nBuild: %s\nDebug-signed PREVIEW. Not stable. No device validation yet.\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > BUILD.txt
+          printf 'Source: %s\nBuild: %s\nDebug-signed PREVIEW. Not stable. No physical-device validation yet.\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > BUILD.txt
       - uses: actions/upload-artifact@v4
         with:
           name: android-preview-${{ github.run_number }}
@@ -44,17 +51,29 @@ jobs:
           path: |
             app/build/reports/
             app/build/test-results/
+            build.log
+            sdk-setup.log
+      - name: Publish failure diagnostics
+        if: failure() && github.event_name != 'pull_request'
+        run: |
+          mkdir -p docs/ci
+          { echo "Source: $GITHUB_SHA / run: $GITHUB_RUN_ID"; tail -n 140 sdk-setup.log build.log 2>/dev/null || true; } > docs/ci/latest-build.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/ci/latest-build.txt
+          git diff --cached --quiet || { git commit -m 'ci: record preview build diagnostics [skip ci]'; git push; }
   smoke:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
@@ -72,7 +91,7 @@ jobs:
           script: |
             adb shell wm size 1920x1080
             adb shell wm density 320
-            gradle --no-daemon :app:connectedDebugAndroidTest
+            set -o pipefail; gradle --no-daemon :app:connectedDebugAndroidTest 2>&1 | tee smoke.log
       - name: Collect UI screenshot
         if: always()
         run: |
@@ -84,5 +103,30 @@ jobs:
           name: emulator-smoke-results
           path: |
             screenshots/
+            smoke.log
             app/build/reports/androidTests/
             app/build/outputs/androidTest-results/
+      - uses: actions/download-artifact@v5
+        with:
+          name: android-preview-${{ github.run_number }}
+          path: preview
+      - name: Publish tested preview (not stable)
+        if: success() && github.event_name != 'pull_request'
+        run: |
+          mkdir -p apk/preview docs/screenshots
+          cp preview/* apk/preview/
+          cp screenshots/home-preview.png docs/screenshots/home-preview.png
+          printf '\nAPI 28 Android TV emulator smoke checks passed. Physical TV validation pending.\n' >> apk/preview/BUILD.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add apk/preview docs/screenshots
+          git diff --cached --quiet || { git commit -m 'build: publish emulator-tested preview APK [skip ci]'; git push; }
+      - name: Publish smoke failure diagnostics
+        if: failure() && github.event_name != 'pull_request'
+        run: |
+          mkdir -p docs/ci
+          { echo "Source: $GITHUB_SHA / run: $GITHUB_RUN_ID"; tail -n 160 smoke.log 2>/dev/null || true; find app/build/outputs/androidTest-results -name '*.xml' -exec tail -n 50 {} \; 2>/dev/null || true; } > docs/ci/latest-smoke.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/ci/latest-smoke.txt
+          git diff --cached --quiet || { git commit -m 'ci: record emulator diagnostics [skip ci]'; git push; }

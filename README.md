@@ -11,7 +11,7 @@ Colourful, animated Android TV launcher. **0.1.0 technical preview — not a sta
 - Device settings shortcut and Home settings shortcut with fallback. Default Home selection depends on device policy; no restrictions are bypassed.
 - No internet permission, ads, account or analytics.
 
-Original typography and geometric icon assets only. Official character illustrations are not included. This is a functional starting point, not completed character artwork.
+Includes an AI-generated cartoon banner inspired by the requested characters, not official character assets. This is an unofficial fan-themed technical preview, not an affiliated or endorsed product. Validate rights and suitability before distribution. The illustration is stored as base64 text in `app/src/main/artwork/` and decoded to a generated Android resource by Gradle before compilation.
 
 ## Build
 
@@ -23,11 +23,11 @@ gradle :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
 
 This initial scaffold uses the exact Gradle version installed by CI rather than a checked-in wrapper. Kotlin + native Android Views keep the preview dependency-light; Compose for TV remains an option rather than a dependency.
 
-GitHub Actions builds a **debug-signed preview APK**, checksum and build metadata as an artifact, then runs a separate API 28 Android TV emulator smoke job. A successful build alone does not mean the emulator job or physical-device testing passed. See each job's result.
+GitHub Actions builds a **debug-signed preview APK**, checksum and build metadata as an artifact, then runs a separate API 28 Android TV emulator smoke job. After both jobs pass, CI commits the preview to `apk/preview/` and the emulator screenshot to `docs/screenshots/`. Neither is called a stable release. A successful build alone does not mean the emulator job or physical-device testing passed. See each job's result.
 
 ## Install and recover safely
 
-1. Download the preview artifact from a successful Actions build and extract it.
+1. After successful CI and smoke checks, download the APK from `apk/preview/`, or download and extract the preview artifact from Actions.
 2. With your TV's developer options enabled, use `adb install -r PapazolaXBoboiboy-0.1.0-preview.apk` or your trusted sideload method.
 3. Open **Papazola × Boboiboy TV** from the app list before selecting it as Home.
 4. Try the remote, app launch, favourites and **Tetapan TV**. Keep your original launcher installed.
