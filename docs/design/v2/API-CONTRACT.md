@@ -43,11 +43,15 @@ This feed provides daily forecasts, period forecasts and `min_temp`/`max_temp`. 
 
 Direct MET service alternative: https://api.met.gov.my/ requires obtaining an access token. No token has been requested, committed or embedded. The official open-government route above is the selected token-free design proposal; if the user specifically requires the direct MET host, resolve that before implementation.
 
+## Confirmed location
+
+The user selected **Kinarut, Sabah** for both widgets. Use JAKIM **SBH07**, which covers Papar. The official weather feed returned no Kinarut-named location. Use **Papar district Ds548** as district-level coverage for Kinarut, labelled **Ramalan daerah Papar**, not as a point observation or an exact Kinarut forecast. See `location-config.json`. Native Android API wiring remains pending.
+
 ## Location and failure policy
 
-- Ask the user to confirm their prayer zone and weather location. The reference's Kinarut/Sabah text is not proof of the user's actual location.
+- The user explicitly confirmed Kinarut, Sabah. Keep zone SBH07 and district forecast coverage transparent.
 - Do not silently treat district-level Papar forecast as a point observation for Kinarut.
-- Until configured, show `--:--`, `--°` and a location/zone prompt.
+- Until native API wiring is complete, show `--:--` and `--°`, the confirmed location and an unconnected status.
 - On network errors, show unavailable status or a clearly dated valid cache, never replace data with demo values.
 - Cache prayer data by zone and Malaysia calendar date; refresh after date/zone changes.
 - Store forecast date, fetch timestamp and selected location. Do not present expired or mismatched data as current.

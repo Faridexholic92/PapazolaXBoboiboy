@@ -11,14 +11,14 @@ const executable=process.env.CHROMIUM_PATH||require('child_process').execFileSyn
  await p.keyboard.press('ArrowRight');if(await p.locator('.focused').getAttribute('aria-label')!=='YouTube')throw Error('Focus wrap mismatch');
  await p.keyboard.press('Enter');await p.waitForTimeout(100);if(!await p.locator('.notice').isVisible())throw Error('Preview notice missing');
  await p.keyboard.press('Escape');if(await p.locator('.notice').isVisible())throw Error('Notice dismissal failed');
- if(!await p.locator('video').evaluate(v=>v.paused))throw Error('Reduced-motion video did not pause');
  let tv=await p.evaluate(()=>({animations:[...document.getAnimations()].filter(a=>a.playState==='running').length,overflow:document.documentElement.scrollWidth>innerWidth}));
  if(tv.animations!==0||tv.overflow)throw Error(JSON.stringify(tv));
  await p.setViewportSize({width:390,height:844});if(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Mobile horizontal overflow');
  await p.setViewportSize({width:1920,height:1080});await p.emulateMedia({reducedMotion:'no-preference'});await p.waitForTimeout(80);
- if(await p.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').length)<1)throw Error('Ambient animation not running');
- if(await p.locator('video').evaluate(v=>v.paused))throw Error('Ambient video did not start');
+ if(await p.locator('video').count())throw Error('Video must be removed');
+ if(await p.locator('.wallpaper').evaluate(el=>getComputedStyle(el).animationName)!=='none')throw Error('Wallpaper must be static');
+ if(!await p.locator('.place').textContent().then(s=>s.includes('Kinarut')))throw Error('Location mismatch');
  if(errors.length)throw Error(errors.join('\n'));
- console.log('PASS: initial focus, D-pad arrows, wrap, End, Enter demo notice, Escape, reduced-motion stop, ambient animation and no horizontal overflow.');
+ console.log('PASS: initial focus, D-pad arrows, wrap, End, Enter demo notice, Escape, static wallpaper, Kinarut location and no horizontal overflow.');
  await b.close();process.exit(0)
 })().catch(e=>{console.error(e);process.exit(1)});

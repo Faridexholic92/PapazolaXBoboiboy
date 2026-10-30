@@ -1,0 +1,19 @@
+{
+  "display_location": "Kinarut, Sabah",
+  "prayer": {
+    "provider": "JAKIM e-Solat",
+    "zone": "SBH07",
+    "timezone": "Asia/Kuala_Lumpur"
+  },
+  "weather": {
+    "provider": "METMalaysia via data.gov.my",
+    "location_id": "Ds548",
+    "location_name": "Papar",
+    "coverage": "District forecast for Kinarut; not a Kinarut-specific observation",
+    "label": "Ramalan daerah Papar"
+  },
+  "wallpaper": {
+    "mode": "static"
+  },
+  "native_api_connected": false
+}
