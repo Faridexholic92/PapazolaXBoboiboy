@@ -288,14 +288,13 @@ class MainActivity : Activity() {
             try {
                 val p=JSONObject(json("https://www.e-solat.gov.my/index.php?r=esolatApi/TakwimSolat&period=today&zone=SBH07"))
                 val times=p.getJSONArray("prayerTime").getJSONObject(0)
-                val prayerDate=SimpleDateFormat("dd-MMM-yyyy",Locale.US).apply { timeZone=malaysia;isLenient=false }.parse(times.getString("date"))
-                val parsedDay=SimpleDateFormat("yyyy-MM-dd",Locale.US).apply { timeZone=malaysia }.format(prayerDate!!)
+                val parsedDay=WeatherRules.jakimDay(times.getString("date"))
                 require(p.getString("status")=="OK!" && p.getString("zone")=="SBH07" && p.getString("serverTime").startsWith(requestedDay) && parsedDay==requestedDay)
                 listOf("fajr","dhuhr","asr","maghrib","isha").forEach { require(Regex("(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]").matches(times.getString(it))) }
                 prefs.edit().putString("prayer_cache",JSONObject().put("day",requestedDay).put("zone","SBH07").put("times",times).toString()).apply()
             } catch(e:Exception) { failed=true;android.util.Log.w("WeatherData","JAKIM unavailable: ${e.javaClass.simpleName}: ${e.message}") }
             try {
-                val a=JSONArray(json("https://api.data.gov.my/weather/forecast?filter=Ds548%40location__location_id&date_start=$requestedDay%40date&date_end=$requestedDay%40date&limit=7"))
+                val a=JSONArray(json("https://api.data.gov.my/weather/forecast/?filter=Ds548%40location__location_id&date_start=$requestedDay%40date&date_end=$requestedDay%40date&limit=7"))
                 val row=(0 until a.length()).map { a.getJSONObject(it) }.first { it.getString("date")==requestedDay && it.getJSONObject("location").getString("location_id")=="Ds548" }
                 require(row.has("min_temp") && row.has("max_temp") && row.getInt("min_temp")<=row.getInt("max_temp"))
                 listOf("morning_forecast","afternoon_forecast","night_forecast").forEach { require(row.getString(it).isNotBlank()) }

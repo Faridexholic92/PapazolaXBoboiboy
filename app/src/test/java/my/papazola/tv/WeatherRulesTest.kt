@@ -19,4 +19,14 @@ class WeatherRulesTest {
         assertEquals("night_forecast",WeatherRules.period(19))
         assertEquals("auto",WeatherRules.validMode("invalid"))
     }
+    @Test fun jakimMalayDatesAreStrict() {
+        assertEquals("2026-10-30",WeatherRules.jakimDay("30-Okt-2026"))
+        assertEquals("2026-03-25",WeatherRules.jakimDay("25-Mac-2026"))
+        assertEquals("2026-05-01",WeatherRules.jakimDay("01-Mei-2026"))
+        assertEquals("2026-08-31",WeatherRules.jakimDay("31-Ogo-2026"))
+        assertEquals("2026-12-12",WeatherRules.jakimDay("12-Dis-2026"))
+        assertEquals("2026-10-30",WeatherRules.jakimDay("30-Oct-2026"))
+        assertNull(WeatherRules.jakimDay("31-Feb-2026"))
+        assertNull(WeatherRules.jakimDay("not a date"))
+    }
 }
