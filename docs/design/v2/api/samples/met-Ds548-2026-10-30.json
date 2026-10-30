@@ -1,0 +1,16 @@
+[
+  {
+    "location": {
+      "location_id": "Ds548",
+      "location_name": "Papar"
+    },
+    "date": "2026-10-30",
+    "morning_forecast": "Tiada Hujan",
+    "afternoon_forecast": "Ribut petir di beberapa tempat",
+    "night_forecast": "Tiada Hujan",
+    "summary_forecast": "Ribut petir di beberapa tempat",
+    "summary_when": "Petang",
+    "min_temp": 24,
+    "max_temp": 33
+  }
+]

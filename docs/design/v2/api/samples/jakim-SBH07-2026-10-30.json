@@ -1,0 +1,23 @@
+{
+  "prayerTime": [
+    {
+      "hijri": "1448-05-19",
+      "date": "30-Okt-2026",
+      "day": "Friday",
+      "imsak": "04:42:00",
+      "fajr": "04:52:00",
+      "syuruk": "06:02:00",
+      "dhuha": "06:30:00",
+      "dhuhr": "12:02:00",
+      "asr": "15:22:00",
+      "maghrib": "17:58:00",
+      "isha": "19:09:00"
+    }
+  ],
+  "status": "OK!",
+  "serverTime": "2026-10-30 13:37:44",
+  "periodType": "today",
+  "lang": "ms_my",
+  "zone": "SBH07",
+  "bearing": "290&#176; 40&#8242; 37&#8243;"
+}
