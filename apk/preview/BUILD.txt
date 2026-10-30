@@ -1,0 +1,5 @@
+Source: 19a752582433226ff8427de54c79e8f12ddcbc35
+Build: 40999773133
+Debug-signed PREVIEW. Not stable. No physical-device validation yet.
+
+API 28 Android TV emulator smoke checks passed. Physical TV validation pending.
