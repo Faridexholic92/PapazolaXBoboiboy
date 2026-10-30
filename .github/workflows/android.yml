@@ -104,7 +104,7 @@ jobs:
           script: |
             adb shell wm size 1920x1080
             adb shell wm density 320
-            bash -o pipefail -c 'gradle --no-daemon :app:connectedDebugAndroidTest 2>&1 | tee smoke.log'
+            bash ci/run-emulator-tests.sh
       - name: Collect UI screenshot
         if: always()
         run: |
@@ -117,6 +117,7 @@ jobs:
           path: |
             screenshots/
             smoke.log
+            runtime.log
             app/build/reports/androidTests/
             app/build/outputs/androidTest-results/
       - uses: actions/download-artifact@v5
@@ -138,7 +139,7 @@ jobs:
         if: failure() && github.event_name != 'pull_request'
         run: |
           mkdir -p docs/ci
-          { echo "Source: $GITHUB_SHA / run: $GITHUB_RUN_ID"; tail -n 160 smoke.log 2>/dev/null || true; find app/build/outputs/androidTest-results -name '*.xml' -exec tail -n 50 {} \; 2>/dev/null || true; } > docs/ci/latest-smoke.txt
+          { echo "Source: $GITHUB_SHA / run: $GITHUB_RUN_ID"; tail -n 160 smoke.log runtime.log 2>/dev/null || true; find app/build/outputs/androidTest-results -name '*.xml' -exec tail -n 50 {} \; 2>/dev/null || true; } > docs/ci/latest-smoke.txt
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           if compgen -G 'screenshots/*.png' > /dev/null; then

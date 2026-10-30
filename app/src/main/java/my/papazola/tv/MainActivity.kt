@@ -262,13 +262,12 @@ class MainActivity : Activity() {
 
     private fun favouriteMenu(app: TvApp) {
         val adding = app.packageName !in favourites()
-        AlertDialog.Builder(this).setTitle(app.title)
-            .setItems(arrayOf(if (adding) "Tambah kegemaran" else "Buang kegemaran", "Buka aplikasi")) { _, which ->
-                if (which == 0) {
-                    prefs.edit().putStringSet("favourites", AppOrder.toggle(favourites(), app.packageName)).apply()
-                    renderApps()
-                } else launchApp(app)
-            }.setNegativeButton("Batal", null).show().also { focusFirstDialogItem(it) }
+        showTvMenu(app.title, listOf(if (adding) "Tambah kegemaran" else "Buang kegemaran", "Buka aplikasi")) { which ->
+            if (which == 0) {
+                prefs.edit().putStringSet("favourites", AppOrder.toggle(favourites(), app.packageName)).apply()
+                renderApps()
+            } else launchApp(app)
+        }
     }
 
     private fun launchApp(app: TvApp) = safeStart(Intent(app.intent).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
@@ -280,33 +279,45 @@ class MainActivity : Activity() {
     private fun openSettings() = safeStart(Intent(Settings.ACTION_SETTINGS))
 
     private fun showOptions() {
-        AlertDialog.Builder(this).setTitle("Pilihan launcher")
-            .setItems(arrayOf("Animasi: ${if (motion) "ON" else "OFF"}", "Pilih Home launcher", "Tentang preview")) { _, which ->
-                when (which) {
-                    0 -> {
-                        motion = !motion
-                        prefs.edit().putBoolean("motion", motion).apply()
-                        startAmbient()
-                        Toast.makeText(this, if (motion) "Animasi dihidupkan" else "Animasi dimatikan", Toast.LENGTH_SHORT).show()
-                    }
-                    1 -> {
-                        val home = Intent(Settings.ACTION_HOME_SETTINGS)
-                        if (home.resolveActivity(packageManager) != null) safeStart(home)
-                        else { openSettings(); Toast.makeText(this, "Pilih Default apps > Home jika peranti menyokongnya.", Toast.LENGTH_LONG).show() }
-                    }
-                    2 -> AlertDialog.Builder(this).setTitle("Papazola × Boboiboy TV")
-                        .setMessage("Preview 0.1.0 — belum disahkan stabil.\n\nIlustrasi AI berinspirasikan watak, bukan aset atau aplikasi rasmi. Tiada iklan, akaun atau sambungan internet.\n\nTekan Home untuk kembali. Sesetengah TV tidak membenarkan launcher pihak ketiga menjadi Home.")
-                        .setPositiveButton("OK", null).show()
+        showTvMenu("Pilihan launcher", listOf("Animasi: ${if (motion) "ON" else "OFF"}", "Pilih Home launcher", "Tentang preview")) { which ->
+            when (which) {
+                0 -> {
+                    motion = !motion
+                    prefs.edit().putBoolean("motion", motion).apply()
+                    startAmbient()
+                    Toast.makeText(this, if (motion) "Animasi dihidupkan" else "Animasi dimatikan", Toast.LENGTH_SHORT).show()
                 }
-            }.setNegativeButton("Tutup", null).show().also { focusFirstDialogItem(it) }
+                1 -> {
+                    val home = Intent(Settings.ACTION_HOME_SETTINGS)
+                    if (home.resolveActivity(packageManager) != null) safeStart(home)
+                    else { openSettings(); Toast.makeText(this, "Pilih Default apps > Home jika peranti menyokongnya.", Toast.LENGTH_LONG).show() }
+                }
+                2 -> AlertDialog.Builder(this).setTitle("Papazola × Boboiboy TV")
+                    .setMessage("Preview 0.1.0 — belum disahkan stabil.\n\nIlustrasi AI berinspirasikan watak, bukan aset atau aplikasi rasmi. Tiada iklan, akaun atau sambungan internet.\n\nTekan Home untuk kembali. Sesetengah TV tidak membenarkan launcher pihak ketiga menjadi Home.")
+                    .setPositiveButton("OK", null).show()
+            }
+        }
     }
 
-    private fun focusFirstDialogItem(dialog: AlertDialog) {
-        dialog.listView?.apply {
-            isFocusableInTouchMode = true
-            requestFocus()
-            setSelection(0)
+    private fun showTvMenu(title: String, labels: List<String>, onSelected: (Int) -> Unit) {
+        lateinit var dialog: AlertDialog
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(24), dp(8), dp(24), dp(8))
+            clipChildren = false
         }
+        labels.forEachIndexed { index, label ->
+            val button = navButton(label) { dialog.dismiss(); onSelected(index) }
+            button.gravity = Gravity.CENTER_VERTICAL or Gravity.START
+            button.layoutParams = LinearLayout.LayoutParams(-1, dp(52)).apply { bottomMargin = dp(8) }
+            content.addView(button)
+        }
+        dialog = AlertDialog.Builder(this).setTitle(title).setView(content)
+            .setNegativeButton("Tutup", null).create()
+        dialog.setOnShowListener {
+            content.getChildAt(0)?.post { content.getChildAt(0)?.requestFocus() }
+        }
+        dialog.show()
     }
 
     private fun startAmbient() {
